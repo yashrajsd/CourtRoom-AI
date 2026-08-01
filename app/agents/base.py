@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-from langchain_core.language_models.chat_models import BaseChatModel
-
+from app.llm.service import LLMService
 from app.state.court_state import CourtState
 
 class BaseAgent(ABC):
@@ -17,8 +16,8 @@ class BaseAgent(ABC):
     to make to the shared graph state 
     """
 
-    def __init__(self,llm: BaseChatModel)->None:
-        self._llm = llm
+    def __init__(self,llm_service: LLMService)->None:
+        self._llm_service = llm_service
 
     @property
     def name(self)->str:

@@ -1,7 +1,8 @@
-from typing import Literal, TypedDict
+from typing import TypedDict
 from typing import Annotated
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
+from app.core.enums import NextStep
 
 class Session(TypedDict):
     session_id: str
@@ -12,9 +13,15 @@ class Case(TypedDict):
     description: str
     category: str
 
+class Evidence(TypedDict):
+    description: str
+    source: str
+    confidence: float
+
 class MetaData(TypedDict):
     current_agent: str
     is_completed: bool
+    next_step: NextStep
 
 class Verdict(TypedDict):
     decision: str | None
@@ -30,7 +37,7 @@ class CourtState(TypedDict):
     session: Session
     case: Case
     conversation: Annotated[list[BaseMessage], add_messages]
-    evidence: list[str]
+    evidence: list[Evidence]
     findings: list[str]
     verdict: Verdict
     metadata: MetaData
