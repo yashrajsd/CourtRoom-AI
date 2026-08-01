@@ -14,26 +14,24 @@ class Case(TypedDict):
 
 class MetaData(TypedDict):
     current_agent: str
-    completed: bool
+    is_completed: bool
 
 class Verdict(TypedDict):
-    decision: str
-    confidence: float
-    reasoning: str
+    decision: str | None
+    confidence: float | None
+    reasoning: str | None
 
 class CourtState(TypedDict):
-    """
-    Shared state for a single courtroom heraing
 
-    Every LangGraph node recieves this state and returns
-    only the fileds it wants to update
+    """
+    Shared state for a single courtroom hearing.
     """
 
-    sessions: Session
+    session: Session
     case: Case
-    conversations: list
-    evidence: list
-    findings: list
+    conversation: Annotated[list[BaseMessage], add_messages]
+    evidence: list[str]
+    findings: list[str]
     verdict: Verdict
     metadata: MetaData
 
