@@ -14,14 +14,17 @@ class LawyerAgent(BaseAgent):
 
         self.system_prompt = PromptLoader.load("lawyer")
 
-    async def invoke(self, state):
+    async def invoke(self, state: CourtState) -> dict:
         messages = [
             SystemMessage(content=self.system_prompt),
-            HumanMessage(
-                content="My landlord didn't return my security deposit."
-            )
+            *state["conversation"]
         ]
-        response = await self._llm.ainvoke(messages)
+
+        try:
+            response = await self._llm.ainvoke(messages)
+        except Exception as e:
+            raise RuntimeError(f"LawyerAgent failed to invoke LLM: {e}") from e
+  
         return {
-            "response": response.content
+            "conversation": [response[0].text]
         }
