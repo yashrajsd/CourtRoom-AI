@@ -1,7 +1,9 @@
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.language_models.chat_models import BaseChatModel
-from typing import Type
+from typing import Type, TypeVar
 from pydantic import BaseModel
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class LLMService:
@@ -33,7 +35,7 @@ class LLMService:
     async def structured_chat(
             self,
             messages: list[BaseMessage],
-            schema: Type[BaseModel]
+            schema: Type[T]
     ):
         """
         Incoke the LLM and return a validated Pydantic model.

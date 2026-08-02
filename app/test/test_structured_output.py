@@ -1,5 +1,7 @@
 import asyncio
+
 from langchain_core.messages import HumanMessage
+
 from app.llm.factory import LLMFactory
 from app.llm.service import LLMService
 from app.schemas.evaluation import EvaluationResultSchema
@@ -7,23 +9,36 @@ from app.schemas.evaluation import EvaluationResultSchema
 
 async def main():
     llm = LLMFactory.create()
-    service = LLMService(llm)
+    llm_service = LLMService(llm)
 
-    response = await service.structured_chat(
-            messages=[
-                HumanMessage(
-                    content="""
-                            Decide whether to continue questioning or proceed.
+    messages = [
+        HumanMessage(
+            content="""
+The user says:
 
-                            Return the decision.
-                            """
-                )
-            ],
-            schema=EvaluationResultSchema,
+"I was terminated from my job without any prior notice.
+My employer also refused to pay my final month's salary."
+
+Should the lawyer continue asking questions,
+or is there enough information to proceed
+to the opposing counsel?
+
+Respond using the EvaluationResult schema.
+"""
         )
+    ]
 
-    print(response)
-    print(type(response))
+    result = await llm_service.structured_chat(
+        messages=messages,
+        schema=EvaluationResultSchema,
+    )
+
+    print("Evaluation Result")
+    print("-----------------")
+    print(result)
+
+    print("\nNext Step:", result.next_step)
+    print("Reason:", result.reason)
 
 
 if __name__ == "__main__":
