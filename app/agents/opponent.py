@@ -13,7 +13,7 @@ class OpponentAgent(BaseAgent):
 
     def __init__(self, llm_service):
         super().__init__(llm_service)
-        self.system_prompt = PromptLoader
+        self.system_prompt = PromptLoader.load("opponent")
 
     async def invoke(self,state: CourtState)->dict:
 
