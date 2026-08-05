@@ -1,20 +1,31 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph,START,END
 
-from app.agents.lawyer import LawyerAgent
-from app.llm.factory import LLMFactory
+from app.agents.factory import AgentContainer
 from app.state.court_state import CourtState
+from app.graph.router import case_router
 
+class CourtGraph:
 
-def build_graph():
-    llm = LLMFactory.create()
+    @staticmethod
+    def build(agents: AgentContainer):
+        builder = StateGraph(CourtState)
 
-    lawyer = LawyerAgent(llm)
+        builder.add_node("lawyer",agents.lawyer.invoke)
+        builder.add_node("opponent",agents.opponent.invoke)
+        builder.add_node("case_evaluator",agents.case_evaluator.invoke)
 
-    builder = StateGraph(CourtState)
+        builder.add_edge(START,"lawyer")
+        builder.add_edge("lawyer","case_evaluator")
+        
+        builder.add_conditional_edges(
+            "case_evaluator",
+            case_router,
+            {
+                "lawyer":"lawyer",
+                "opponent": "opponent"
+            }
+        )
 
-    builder.add_node("lawyer", lawyer.invoke)
+        builder.add_edge("opponent",END)
 
-    builder.add_edge(START, "lawyer")
-    builder.add_edge("lawyer", END)
-
-    return builder.compile()
+        return builder.compile()

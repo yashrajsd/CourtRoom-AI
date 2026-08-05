@@ -1,11 +1,10 @@
-from app.agents.base import BaseAgent
+from app.agents.structured import StructuredAgent
 from app.prompts.loader import PromptLoader
 from app.schemas.evaluation import EvaluationResultSchema
 from app.state.court_state import CourtState
-from app.utils.message_builder import MessageBuilder
 
 
-class CaseEvaluatorAgent(BaseAgent):
+class CaseEvaluatorAgent(StructuredAgent):
     """
     Decides whether the lawyer should continue questioning
     or whether the case can move to the opponent.
@@ -14,24 +13,23 @@ class CaseEvaluatorAgent(BaseAgent):
     def __init__(self, llm_service):
         super().__init__(llm_service)
 
-        self.system_prompt = PromptLoader.load(
+        self._system_prompt = PromptLoader.load(
             "case_evaluator"
         )
 
-    async def invoke(
+    @property
+    def system_prompt(self) -> str:
+        return self._system_prompt
+
+    @property
+    def output_schema(self):
+        return EvaluationResultSchema
+
+    def process_result(
         self,
+        result: EvaluationResultSchema,
         state: CourtState,
     ) -> dict:
-
-        messages = MessageBuilder.build(
-            self.system_prompt,
-            state["conversation"],
-        )
-
-        result = await self._llm_service.structured_chat(
-            messages=messages,
-            schema=EvaluationResultSchema,
-        )
 
         metadata = {
             **state["metadata"],
