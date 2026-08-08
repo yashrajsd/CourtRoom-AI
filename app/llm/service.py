@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
-
+  
 class LLMService:
     """
     Wrapper around LangChain chat models
