@@ -1,19 +1,13 @@
-from datetime import datetime
-from uuid import uuid4
-
-from sqlalchemy import String, DateTime, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped,mapped_column
 from app.db.base import Base
+from sqlalchemy import Enum
+from app.core.enums import HearingStatus
+from app.db.mixins import UUIDPrimaryMixin, TimeStampMixin
+from sqlalchemy.orm import relationship
 
-class Hearing(Base):
+class Hearing(Base, UUIDPrimaryMixin, TimeStampMixin):
     __tablename__ = "Hearing"
-
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4
-    )
 
     title: Mapped[str] = mapped_column(
         String(256),
@@ -30,7 +24,12 @@ class Hearing(Base):
         nullable=False
     )
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=datetime.utcnow
+    status: Mapped[HearingStatus] = mapped_column(
+        Enum(HearingStatus),
+        default=HearingStatus.CREATED
+    )
+
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="hearing",
+        cascade="all, delete-orphan",
     )
